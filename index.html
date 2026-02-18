@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PokéDAA Arena</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Orbitron', sans-serif;
+}
+
+body{
+    height:100vh;
+    background: linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95);
+    color:white;
+    overflow:hidden;
+}
+
+
+
+.container{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    transition:0.6s ease;
+}
+
+.hidden{
+    display:none;
+}
+
+button{
+    padding:12px 30px;
+    border:none;
+    border-radius:30px;
+    font-size:16px;
+    cursor:pointer;
+    margin-top:20px;
+    background:#7c3aed;
+    color:white;
+    transition:0.3s;
+    box-shadow:0 0 20px #a78bfa;
+}
+
+button:hover{
+    transform:scale(1.1);
+    box-shadow:0 0 35px #c4b5fd;
+}
+
+input{
+    padding:10px;
+    border-radius:20px;
+    border:none;
+    margin:8px;
+    width:250px;
+    text-align:center;
+}
+
+
+.logo{
+    width:160px;
+    animation:float 3s infinite ease-in-out;
+}
+
+@keyframes float{
+    0%{transform:translateY(0);}
+    50%{transform:translateY(-20px);}
+    100%{transform:translateY(0);}
+}
+
+.title{
+    font-size:48px;
+    margin-top:20px;
+    text-shadow:0 0 25px #a5b4fc;
+}
+
+
+
+.card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 0 30px rgba(0,0,0,0.5);
+    text-align:center;
+}
+
+.card h2{
+    margin-bottom:20px;
+    font-weight:700;
+    letter-spacing:2px;
+}
+
+.toggle{
+    margin-top:10px;
+    font-size:13px;
+    cursor:pointer;
+    color:#c4b5fd;
+}
+
+
+.team-container{
+    display:flex;
+    gap:60px;
+    margin-top:40px;
+}
+
+.team-card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px);
+    padding:25px;
+    border-radius:25px;
+    width:320px;
+    text-align:center;
+    cursor:pointer;
+    transition:0.4s;
+}
+
+.team-card:hover{
+    transform:scale(1.07);
+    box-shadow:0 0 40px #a5b4fc;
+}
+
+.team-title{
+    font-size:24px;
+    margin-bottom:15px;
+    color:#c4b5fd;
+}
+
+.characters{
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:12px;
+}
+
+.characters img{
+    max-height:120px;
+    width:auto;
+    object-fit:contain;
+    transition:0.3s;
+}
+
+.characters img:hover{
+    transform:scale(1.1);
+}
+
+.selected{
+    border:3px solid #a5b4fc;
+}
+
+.pokeballs{
+    margin-top:15px;
+    font-size:20px;
+    color:#c4b5fd;
+}
+</style>
+</head>
+
+<body>
+
+
+<div class="container" id="landing">
+    <!-- Replace with your pokemon logo image -->
+    <img src="images/logo-pokemon.png" class="logo">
+    <div class="title">PokéDAA Arena</div>
+    <button onclick="goToLogin()">Enter Arena</button>
+</div>
+
+
+<div class="container hidden" id="auth">
+    <div class="card">
+        <h2 id="formTitle">Login</h2>
+        <input type="text" placeholder="Username"><br>
+        <input type="password" placeholder="Password"><br>
+        <button onclick="goToTeam()">Continue</button>
+        <div class="toggle" onclick="toggleForm()">Don't have an account? Register</div>
+    </div>
+</div>
+
+
+<div class="container hidden" id="teamPage">
+    <h1 class="title">Choose Your Team</h1>
+
+    <div class="team-container">
+
+      
+        <div class="team-card" onclick="selectTeam(this)">
+            <div class="team-title">Team Ash</div>
+            <div class="characters">
+                <img src="images/ash.png">
+                <img src="images/brock.png">
+                <img src="images/misty.png">
+            </div>
+            <div class="pokeballs">⚪ ⚪ ⚪</div>
+        </div>
+
+        <div class="team-card" onclick="selectTeam(this)">
+            <div class="team-title">Team Rocket</div>
+            <div class="characters">
+                <img src="images/jessie.png">
+                <img src="images/james.png">
+                <img src="images/meowth.png">
+            </div>
+            <div class="pokeballs">⚫ ⚫ ⚫</div>
+        </div>
+
+    </div>
+
+    <button onclick="startGame()">Start Level 1</button>
+</div>
+
+<script>
+
+function goToLogin(){
+    document.getElementById("landing").classList.add("hidden");
+    document.getElementById("auth").classList.remove("hidden");
+}
+
+function toggleForm(){
+    let title = document.getElementById("formTitle");
+    let toggleText = document.querySelector(".toggle");
+
+    if(title.innerText === "Login"){
+        title.innerText = "Register";
+        toggleText.innerText = "Already have an account? Login";
+    }else{
+        title.innerText = "Login";
+        toggleText.innerText = "Don't have an account? Register";
+    }
+}
+
+
+function goToTeam(){
+    document.getElementById("auth").classList.add("hidden");
+    document.getElementById("teamPage").classList.remove("hidden");
+}
+
+function selectTeam(card){
+    let cards=document.querySelectorAll(".team-card");
+    cards.forEach(c=>c.classList.remove("selected"));
+    card.classList.add("selected");
+}
+
+function startGame(){
+    alert("⚡ Level 1 Begins! Timer: 120 seconds!");
+}
+
+</script>
+
+</body>
+</html>
