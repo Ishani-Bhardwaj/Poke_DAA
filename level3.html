@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Level 3 | Indigo Plateau</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: white; font-family: 'Orbitron', sans-serif; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .gold-card { background: rgba(30, 41, 59, 0.8); border: 2px solid #fbbf24; padding: 50px; border-radius: 20px; box-shadow: 0 0 50px rgba(251, 191, 36, 0.2); width: 800px; backdrop-filter: blur(10px); }
+        .header img { width: 80px; margin-bottom: 20px; animation: float 3s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .challenges { display: flex; flex-direction: column; gap: 15px; margin: 30px 0; }
+        .lc-btn { background: #1e293b; color: #fbbf24; padding: 15px 20px; border: 1px solid #fbbf24; border-radius: 12px; text-decoration: none; font-size: 16px; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
+        .lc-btn:hover { background: #fbbf24; color: #0f172a; transform: scale(1.02); }
+        .submit-btn { background: #fbbf24; color: #0f172a; padding: 20px 40px; border: none; border-radius: 30px; font-family: 'Orbitron'; font-weight: 900; font-size: 18px; cursor: pointer; transition: 0.3s; margin-top: 20px; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5); }
+        .submit-btn:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(251, 191, 36, 0.8); }
+    </style>
+</head>
+<body>
+    <div class="gold-card">
+        <div class="header">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" alt="Master Ball">
+            <h1 style="color: #fbbf24; margin: 0; letter-spacing: 3px;">INDIGO PLATEAU</h1>
+            <p style="color: #cbd5e1; margin-top: 10px;">Select ONE algorithmic trial to prove your mastery.</p>
+        </div>
+
+        <div class="challenges">
+            <a href="https://leetcode.com/problems/shortest-path-in-binary-matrix/" target="_blank" class="lc-btn">
+                <span>[BFS] Shortest Path in Binary Matrix</span> <span>↗</span>
+            </a>
+            <a href="https://leetcode.com/problems/climbing-stairs/" target="_blank" class="lc-btn">
+                <span>[DP] Climbing Stairs</span> <span>↗</span>
+            </a>
+            <a href="https://leetcode.com/problems/network-delay-time/" target="_blank" class="lc-btn">
+                <span>[Dijkstra] Network Delay Time</span> <span>↗</span>
+            </a>
+            <a href="https://leetcode.com/problems/course-schedule/" target="_blank" class="lc-btn">
+                <span>[Graph] Course Schedule</span> <span>↗</span>
+            </a>
+            <a href="https://leetcode.com/problems/maximum-units-on-a-truck/" target="_blank" class="lc-btn">
+                <span>[Greedy] Maximum Units on a Truck</span> <span>↗</span>
+            </a>
+        </div>
+
+        <button class="submit-btn" onclick="finish()">CLAIM 10 POINTS & FINISH</button>
+    </div>
+
+    <script>
+        function finish() {
+            const tName = localStorage.getItem("trainerName") || "Trainer";
+            alert(`🏆 CONGRATULATIONS ${tName.toUpperCase()}! 🏆\n\nYou have conquered the PokéDAA Arena.\nFinal Grade: 10 Points.`);
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

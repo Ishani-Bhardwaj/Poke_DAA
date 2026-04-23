@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BFS Arena | PokéDAA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: white; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .header { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+        .header img { width: 50px; }
+        #grid { display: grid; grid-template-columns: repeat(8, 60px); gap: 4px; background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.6); border: 1px solid rgba(165, 180, 252, 0.1); }
+        .cell { width: 60px; height: 60px; background: rgba(30, 41, 59, 0.8); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
+        .cell:hover { background: rgba(99, 102, 241, 0.3); }
+        .wall { background: #020617; border: 1px solid #1e293b; box-shadow: inset 0 0 10px black; }
+        .path { background: rgba(99, 102, 241, 0.2); border: 1px solid #6366f1; box-shadow: inset 0 0 15px rgba(99, 102, 241, 0.5); }
+        .sprite { width: 85%; object-fit: contain; z-index: 10; position: absolute; }
+        button { margin-top: 25px; padding: 12px 30px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 20px; cursor: pointer; font-family: 'Orbitron'; transition: 0.3s; }
+        button:hover { background: #ef4444; color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-radar.png" alt="Radar">
+        <h2>BFS SHORTEST PATH SEARCH</h2>
+    </div>
+    <p style="color: #94a3b8; margin-bottom: 20px;">Move the Trainer to Pikachu. The C++ Engine will verify the optimal path.</p>
+    
+    <div id="grid"></div>
+    <button onclick="resetGame()">RECALCULATE ROUTE</button>
+
+    <script>
+        const n = 8;
+        const start = [0, 0];
+        const goal = [7, 7];
+        let userPath = [];
+        let grid = Array.from({length: n}, () => Array(n).fill(0));
+        let playerPos = [...start];
+
+        // Trainer sprite for the user
+        const charImg = `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/red.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/133.gif'" class="sprite" alt="Trainer">`; 
+        const targetImg = `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" class="sprite" alt="Pikachu">`;
+
+        function initWalls() {
+            for(let i=0; i<15; i++) {
+                let rx = Math.floor(Math.random() * n), ry = Math.floor(Math.random() * n);
+                if((rx !== start[0] || ry !== start[1]) && (rx !== goal[0] || ry !== goal[1])) grid[rx][ry] = 1;
+            }
+        }
+
+        function createGrid() {
+            const container = document.getElementById("grid");
+            container.innerHTML = "";
+            for(let i=0; i<n; i++) {
+                for(let j=0; j<n; j++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell " + (grid[i][j] === 1 ? "wall" : "");
+                    cell.id = `${i}-${j}`;
+                    
+                    if(i === goal[0] && j === goal[1]) cell.innerHTML = targetImg;
+                    if(i === playerPos[0] && j === playerPos[1]) cell.innerHTML += charImg;
+
+                    cell.onclick = () => handleMove(i, j);
+                    container.appendChild(cell);
+                }
+            }
+            userPath.forEach(pos => document.getElementById(`${pos[0]}-${pos[1]}`).classList.add("path"));
+        }
+
+        async function handleMove(i, j) {
+            if(grid[i][j] === 1) return;
+            let last = userPath.length > 0 ? userPath[userPath.length-1] : start;
+            if(Math.abs(i - last[0]) + Math.abs(j - last[1]) === 1) {
+                userPath.push([i, j]);
+                playerPos = [i, j];
+                createGrid(); 
+                
+                if(i === goal[0] && j === goal[1]) {
+                    try {
+                        const res = await fetch('http://localhost:8080/api?task=bfs_test');
+                        const data = await res.json();
+                        setTimeout(() => {
+                            if(userPath.length === data.optimal_steps) {
+                                alert(`⚡ PATH SECURED! Verified by C++ Engine. Level 2 Unlocked!`);
+                                window.location.href = 'level2.html';
+                            } else {
+                                alert(`Sub-optimal. You took ${userPath.length} steps, C++ backend calculated ${data.optimal_steps}. Resetting.`);
+                                resetGame();
+                            }
+                        }, 100);
+                    } catch (e) {
+                        alert("Error connecting to C++ Backend.");
+                        console.error(e);
+                    }
+                }
+            }
+        }
+
+        function resetGame() {
+            userPath = [];
+            playerPos = [...start];
+            grid = Array.from({length: n}, () => Array(n).fill(0));
+            initWalls();
+            createGrid();
+        }
+
+        initWalls();
+        createGrid();
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Knapsack Arena | PokéDAA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: white; font-family: 'Orbitron', sans-serif; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .container { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(15px); padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); max-width: 600px; border: 1px solid rgba(165, 180, 252, 0.1); }
+        .header { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .header img { width: 50px; }
+        .item-list { display: flex; gap: 20px; margin: 30px 0; justify-content: center; }
+        .item-card { background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; padding: 20px; border-radius: 15px; cursor: pointer; transition: 0.3s; width: 130px; }
+        .item-card img { width: 40px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); margin-bottom: 10px; }
+        .item-card:hover { transform: translateY(-8px); border-color: #8b5cf6; background: rgba(139, 92, 246, 0.1); box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3); }
+        .progress-bar { width: 100%; height: 25px; background: #020617; border-radius: 12px; margin: 15px 0; overflow: hidden; border: 1px solid #334155; }
+        #fill { height: 100%; width: 0%; background: linear-gradient(90deg, #6366f1, #a855f7); transition: 0.4s; box-shadow: inset 0 0 10px rgba(255,255,255,0.3); }
+        .stats { margin-top: 20px; font-size: 18px; color: #c4b5fd; display: flex; justify-content: space-between; padding: 0 20px; }
+        button { margin-top: 25px; padding: 15px 30px; background: #8b5cf6; color: white; border: none; border-radius: 12px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; margin-inline: 10px; transition: 0.3s; }
+        button:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.6); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png" alt="Potion">
+            <h1 style="margin:0;">FRACTIONAL KNAPSACK</h1>
+        </div>
+        <p style="color:#94a3b8;">Greedy Strategy: Maximize HP within the 50kg limit.</p>
+
+        <div class="item-list" id="itemList"></div>
+
+        <div class="progress-bar"><div id="fill"></div></div>
+
+        <div class="stats">
+            <div>WEIGHT: <span id="currentWeight" style="color:white;">0</span> / 50 kg</div>
+            <div>TOTAL HP: <span id="totalValue" style="color:#10b981;">0</span></div>
+        </div>
+
+        <button onclick="checkSolution()">EVALUATE BAG</button>
+        <button style="background:transparent; border:1px solid #ef4444; color:#ef4444;" onclick="resetGame()">FLUSH</button>
+    </div>
+
+    <script>
+        const MAX_W = 50; let currentW = 0; let currentV = 0;
+        const items = [
+            { name: "Nanab", v: 60, w: 10, img: "nanab-berry" },
+            { name: "Razz", v: 100, w: 20, img: "razz-berry" },
+            { name: "Pinap", v: 120, w: 30, img: "pinap-berry" }
+        ];
+
+        function initGame() {
+            const list = document.getElementById("itemList");
+            list.innerHTML = "";
+            items.forEach((item, index) => {
+                const card = document.createElement("div");
+                card.className = "item-card";
+                card.onclick = () => addItem(index);
+                card.innerHTML = `
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${item.img}.png">
+                    <div style="font-weight:bold; color:white;">${item.name}</div>
+                    <div style="color:#10b981; font-size:14px; margin-top:5px;">${item.v} HP</div>
+                    <div style="color:#94a3b8; font-size:12px;">${item.w} kg</div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function addItem(idx) {
+            const item = items[idx];
+            if (currentW >= MAX_W) return alert("Capacity Maximum Reached!");
+            let take = Math.min(item.w, MAX_W - currentW);
+            currentW += take;
+            currentV += (item.v / item.w) * take;
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById("currentWeight").innerText = currentW.toFixed(1);
+            document.getElementById("totalValue").innerText = currentV.toFixed(1);
+            document.getElementById("fill").style.width = (currentW / MAX_W * 100) + "%";
+        }
+
+        async function checkSolution() {
+            try {
+                const res = await fetch('http://localhost:8080/api?task=knapsack_test');
+                const data = await res.json();
+                
+                if (currentV >= data.optimal_hp && currentW === MAX_W) {
+                    alert("⚡ OPTIMAL EFFICIENCY REACHED. Proceeding to Final Stage.");
+                    window.location.href = 'level3.html';
+                } else {
+                    alert(`HP: ${currentV.toFixed(1)}. Sub-optimal. C++ Backend calculated max HP is ${data.optimal_hp}.`);
+                    resetGame();
+                }
+            } catch (error) {
+                alert("Error connecting to C++ Backend.");
+                console.error(error);
+            }
+        }
+
+        function resetGame() { currentW = 0; currentV = 0; updateUI(); }
+        initGame();
+    </script>
+</body>
+</html>
